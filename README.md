@@ -7,7 +7,8 @@ MCMC Implementation in Scala
 - better design? Perhaps something like this:
 
 ```scala
-// Can be placed in package object
+// Can be placed in package object 
+// See: http://stackoverflow.com/questions/21223051/typedef-in-scala
 type Param = Either[Double,Vector[Double]] // or just Double for only univariates
 
 // MCMC State
