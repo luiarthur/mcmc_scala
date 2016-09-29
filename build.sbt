@@ -1,6 +1,6 @@
 name := "mcmcScala"
 
-version := "v0.1"
+version := "v0.2"
 
 scalaVersion := "2.11.8"
 
