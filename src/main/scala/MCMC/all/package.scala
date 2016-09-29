@@ -20,4 +20,6 @@ package object all {
     def means = for (i <- 0 until d) yield _mean( sep(i) )
     def sds = for (i <- 0 until d) yield _sd( sep(i) )
   }
+
+  type Param = Either[Double,Vector[Double]]
 }

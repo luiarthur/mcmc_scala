@@ -39,7 +39,7 @@ class TestSuite extends FunSuite {
 
     samps.take(3).foreach{println}
     println(Console.GREEN)
-    println("            " + "mu" + "\t\t" + "sd")
+    println("            " + "mu" + "\t\t" + "sig2")
     println("     Mean : " + samps.means.map{round(_)}.mkString("\t"))
     println("       SD : " + samps.sds.map{round(_)}.mkString("\t"))
     println(Console.RESET)
