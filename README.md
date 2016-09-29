@@ -11,6 +11,7 @@ MCMC Implementation in Scala
 import MCMC.all._
 import breeze.stats.distributions.Gamma
 
+def round(x: Double, d: Int = 2) = (scala.math.pow(10,d) * x).toInt / scala.math.pow(10,d)
 def rnorm(mu: Double, sd: Double) = scala.util.Random.nextGaussian * sd + mu
 def rig(shp: Double, rate: Double) = 1 / Gamma(shp, 1/rate).sample
 
