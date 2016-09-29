@@ -7,46 +7,55 @@ MCMC Implementation in Scala
 - better design? Perhaps something like this:
 
 ```scala
-// Can be placed in package object 
-// See: http://stackoverflow.com/questions/21223051/typedef-in-scala
-type Param = Either[Double,Vector[Double]] // or just Double for only univariates
+import MCMC.all._
+import breeze.stats.distributions.Gamma
 
-// MCMC State
-case class State(s: Map[String, Param])
+def rnorm(mu: Double, sd: Double) = scala.util.Random.nextGaussian * sd + mu
+def rig(shp: Double, rate: Double) = 1 / Gamma(shp, 1/rate).sample
 
-// Full Conditionals
-case class FullConditionals(fcs: Map[String, State=>Param])
+// TURTH: y ~ Normal(mu=5, var=2)
+val mu = 5.0
+val sig2 = 2.0
+val n = 1000
+val y = Vector.fill(n)( rnorm(mu,math.sqrt(sig2)) )
 
-// Model Specification
-class Specifications(init: State, fcs: FullConditionals)
-/*
-val specs = new Specification(
+val a = 2.0
+val b = 1.0
+
+val ybar = y.sum / n
+
+def samplerMu(s: State) = {
+  val s2 = s.s("sig2").head
+  Vector(rnorm(ybar, math.sqrt(s2/n.toDouble)))
+}
+
+def samplerSig2(s: State) = {
+  val m = s.s("mu").head
+  val ss = y.map{ yi => (yi-m)*(yi-m) }.sum
+  Vector(rig(a+ n*.5, b + ss*.5))
+}
+
+val specs = new Specifications(
   init = State(Map(
-           "mu"   -> Left(0.0),
-           "sig2" -> Left(1.0)
+           "mu"   -> Vector(0.0),
+           "sig2" -> Vector(1.0)
          )),
   fcs = FullConditionals(Map(
-          "mu"   -> muSampler: State=>Param,
-          "sig2" -> sig2Sampler: State=>Param
+          "mu"   -> samplerMu,
+          "sig2" -> samplerSig2
         ))
 )
-*/
 
-// Gibbs
-class Gibbs(specs: Specifications, B: Int, burn: Int) {
+val gibbs = Gibbs(specs, 10000, 1000)
+val samps = gibbs.sample
+val postMean = samps.meansDouble
+val postSD = samps.sdsDouble
 
-  private val _fcs = specs.fcs
-  val d = specs.init.size
-
-  private def update(currState: State) = {
-    def loop(state: State, j: Int): State = 
-      if (j==d) state else {
-        val samp = _fcs(p(j))(state)
-        val newState = State( state.updated(p(j),samp) )
-        loop(newState, j+1)
-      }
-
-    loop(currState,0)
-  }
-}
+samps.take(3).foreach{println}
+println(Console.GREEN)
+println("        " + "mu" + "\t" + "sig2")
+println("Truth : " + mu + "\t" + sig2)
+println(" Mean : " + postMean.map{round(_)}.mkString("\t"))
+println("   SD : " + postSD.map{round(_)}.mkString("\t"))
+println(Console.RESET)
 ```
