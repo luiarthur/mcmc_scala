@@ -4,8 +4,9 @@ MCMC Implementation in Scala
 # To do:
 - better interface
 - make parameters `Either[Double,Vector[Double]]`
-- better design? Perhaps something like this:
+- better design?
 
+# Usage Example:
 ```scala
 import MCMC.all._
 import breeze.stats.distributions.Gamma
