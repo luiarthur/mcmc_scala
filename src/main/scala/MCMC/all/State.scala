@@ -1,3 +1,3 @@
 package MCMC.all
 
-case class State(params: Vector[Double])
+case class State(s: Map[String, Param])

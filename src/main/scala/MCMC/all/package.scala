@@ -1,6 +1,9 @@
 package MCMC
 
 package object all {
+
+  type Param = Vector[Double]
+
   implicit class SmartVector[T](vec: Vector[T]) {
     def but(i: Int) = vec patch (from = i, patch = Nil, replaced = 1)
   }
@@ -13,13 +16,12 @@ package object all {
       math.sqrt( ss / (x.size-1.0) )
     }
 
-    def d = ls(0).params.size
-    def sep(j: Int) = ls map {s => s.params(j)}
-    def mean(j: Int) = _mean( sep(j) )
-    def sd(j: Int) = _sd( sep(j) )
-    def means = for (i <- 0 until d) yield _mean( sep(i) )
-    def sds = for (i <- 0 until d) yield _sd( sep(i) )
+    def params = ls(0).s.keys
+    def sepDouble(s: String) = ls map {st => st.s(s).head}
+    def meanDouble(s: String) = _mean( sepDouble(s) )
+    def sdDouble(s: String) = _sd( sepDouble(s) )
+    def meansDouble = params map { p => _mean(sepDouble(p)) }
+    def sdsDouble = params map { p => _sd(sepDouble(p)) }
   }
 
-  type Param = Either[Double,Vector[Double]]
 }
