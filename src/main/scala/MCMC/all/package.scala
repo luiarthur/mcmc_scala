@@ -19,6 +19,5 @@ package object all {
     def sd(j: Int) = _sd( sep(j) )
     def means = for (i <- 0 until d) yield _mean( sep(i) )
     def sds = for (i <- 0 until d) yield _sd( sep(i) )
-
   }
 }

@@ -4,14 +4,9 @@ object Gibbs {
   def apply = ???
 }
 
-case class Gibbs[T](fullConds: Vector[FullCond],
+case class Gibbs(fullConds: Vector[FullCond],
                     inits: State,
                     B: Int, burn: Int) {
-
-  //private implicit class SmartVector[T](vec: Vector[T]) {
-  //  // removes nth element in vec: Vector[T]
-  //  def but(n: Int) = vec patch (from = n, patch = Nil, replaced = 1)
-  //}
 
   val d = inits.params.size
 

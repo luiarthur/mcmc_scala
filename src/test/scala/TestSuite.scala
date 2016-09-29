@@ -8,6 +8,9 @@ class TestSuite extends FunSuite {
     println(Vector(10.0,10.1,10.2).but(1))
   }
 
+  def round(x: Double, d: Int = 2) = (scala.math.pow(10,d) * x).toInt / scala.math.pow(10,d)
+
+
   test("Gibbs") {
     def rnorm(mu: Double, sd: Double) = scala.util.Random.nextGaussian * sd + mu
     def rig(shp: Double, rate: Double) = 1 / Gamma(shp, 1/rate).sample
@@ -36,8 +39,9 @@ class TestSuite extends FunSuite {
 
     samps.take(3).foreach{println}
     println(Console.GREEN)
-    println("Posterior Mean: " + samps.means)
-    println("Posterior SD:   " + samps.sds)
+    println("            " + "mu" + "\t\t" + "sd")
+    println("     Mean : " + samps.means.map{round(_)}.mkString("\t"))
+    println("       SD : " + samps.sds.map{round(_)}.mkString("\t"))
     println(Console.RESET)
   }
 }
