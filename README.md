@@ -1,4 +1,4 @@
-# mcmc_scala
+# mcmc_scala [![Build Status](https://travis-ci.org/luiarthur/mcmc_scala.svg?branch=master)](https://travis-ci.org/luiarthur/mcmc_scala)
 MCMC Implementation in Scala
 
 # To do:
