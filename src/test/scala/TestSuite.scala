@@ -61,4 +61,9 @@ class TestSuite extends FunSuite {
     println("   SD : " + postSD.map{round(_)}.mkString("\t"))
     println(Console.RESET)
   }
+
+  //test("Strange") {
+  //  def f[T](t: Strange[T]) = t + 1
+  //  println(f(10))
+  //}
 }
