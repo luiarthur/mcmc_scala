@@ -39,11 +39,11 @@ def samplerSig2(s: State) = {
 
 val specs = new Specifications(
   init = State(Map(
-           "mu"   -> Vector(0.0),
+           "mu"   -> Vector(0.0), // Must be Vector[Double]
            "sig2" -> Vector(1.0)
          )),
   fcs = FullConditionals(Map(
-          "mu"   -> samplerMu,
+          "mu"   -> samplerMu,  // functions are State => Param
           "sig2" -> samplerSig2
         ))
 )
@@ -60,5 +60,4 @@ println("Truth : " + mu + "\t" + sig2)
 println(" Mean : " + postMean.map{round(_)}.mkString("\t"))
 println("   SD : " + postSD.map{round(_)}.mkString("\t"))
 println(Console.RESET)
-
 ```
