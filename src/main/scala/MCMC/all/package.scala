@@ -13,59 +13,44 @@ package object all {
   def mcmcHelp = {
     val fullExample = 
     """
+    import breeze.stats.distributions.{Gaussian,Gamma}
+    import math.sqrt
+
     import MCMC.all._
-    import breeze.stats.distributions.Gamma
-
-    def round(x: Double, d: Int = 2) = (scala.math.pow(10,d) * x).toInt / scala.math.pow(10,d)
-    def rnorm(mu: Double, sd: Double) = scala.util.Random.nextGaussian * sd + mu
-    def rig(shp: Double, rate: Double) = 1 / Gamma(shp, 1/rate).sample
-
-    // TURTH: y ~ Normal(mu=5, var=2)
-    val mu = 5.0
-    val sig2 = 2.0
-    val n = 1000
-    val y = Vector.fill(n)( rnorm(mu,math.sqrt(sig2)) )
-
-    val a = 2.0
-    val b = 1.0
+    val (mu,sig2,n) = (5.0,2.0,1000)
+    val y = Gaussian(mu,sqrt(sig2)).sample(n).toVector
 
     val ybar = y.sum / n
 
-    def samplerMu(s: State) = {
-      val s2 = s.s("sig2").head
-      Vector(rnorm(ybar, math.sqrt(s2/n.toDouble)))
+    case class State(mu: Double, sig2: Double) extends Gibbs.State {
+      def rig(shp: Double, rate: Double) = 1 / Gamma(shp, 1/rate).sample
+      val (sig2a, sig2b) = (2,1)
+      def update = {
+        // update mu
+        val newMu = Gaussian(ybar,sqrt(sig2/n)).sample
+
+        // update sig2
+        val ss = y.map{ yi => (yi-newMu)*(yi-newMu) }.sum
+        val newSig2 = rig(sig2b+n/2.0, sig2a+ss/2.0)
+        State(newMu, newSig2)
+      }
     }
 
-    def samplerSig2(s: State) = {
-      val m = s.s("mu").head
-      val ss = y.map{ yi => (yi-m)*(yi-m) }.sum
-      Vector(rig(a+ n*.5, b + ss*.5))
+    val init = State(2.0,10.0)
+    val out = timer { Gibbs.sample(init,10000,1000) }
+
+    def mean(x: List[Double]) = x.sum / x.size
+    def sd(x: List[Double]) = {
+      val xbar = mean(x)
+      val n = x.size
+      val sqDiff = x.map{xi => (xi-xbar)*(xi-xbar)}
+      sqrt(mean(sqDiff)*n/(n-1))
     }
 
-    val specs = new Specifications(
-      init = State(Map(
-               "mu"   -> Vector(0.0), // Must be Vector[Double]
-               "sig2" -> Vector(1.0)
-             )),
-      fcs = FullConditionals(Map(
-              "mu"   -> samplerMu,  // functions are State => Param
-              "sig2" -> samplerSig2
-            ))
-    )
-
-    val gibbs = Gibbs(specs, 10000, 1000)
-    val samps = gibbs.sample
-    val postMean = samps.meansDouble
-    val postSD = samps.sdsDouble
-
-    samps.take(3).foreach{println}
-    println(Console.GREEN)
-    println("        " + "mu" + "\t" + "sig2")
-    println("Truth : " + mu + "\t" + sig2)
-    println(" Mean : " + postMean.map{round(_)}.mkString("\t"))
-    println("   SD : " + postSD.map{round(_)}.mkString("\t"))
-    println(Console.RESET)
-
+    println("post mean mu: " + mean(out.map{_.mu}) )
+    println("post mean sig2: " + mean(out.map{_.sig2}) )
+    println("post sd mu: " + sd(out.map{_.mu}) )
+    println("post sd sig2: " + sd(out.map{_.sig2}) )
     """
 
     println(fullExample)
