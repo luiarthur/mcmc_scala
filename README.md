@@ -10,13 +10,14 @@ MCMC Implementation in Scala
 ```scala
 import breeze.stats.distributions.{Gaussian,Gamma}
 import math.sqrt
-
 import MCMC.all._
+
+// Generate Data
 val (mu,sig2,n) = (5.0,2.0,1000)
 val y = Gaussian(mu,sqrt(sig2)).sample(n).toVector
-
 val ybar = y.sum / n
 
+// Extend State class & define samplers for full conditionals
 case class State(mu: Double, sig2: Double) extends Gibbs.State {
   def rig(shp: Double, rate: Double) = 1 / Gamma(shp, 1/rate).sample
   val (sig2a, sig2b) = (2,1)
@@ -31,9 +32,10 @@ case class State(mu: Double, sig2: Double) extends Gibbs.State {
   }
 }
 
-val init = State(2.0,10.0)
-val out = timer { Gibbs.sample(init,10000,1000) }
+// Time & Run Gibbs Sampler
+val out = timer {Gibbs.sample(init=State(mu=2.0,sig2=10.0),B=10000,burn=1000)}
 
+// Post-processing
 def mean(x: List[Double]) = x.sum / x.size
 def sd(x: List[Double]) = {
   val xbar = mean(x)
