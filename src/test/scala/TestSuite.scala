@@ -5,7 +5,7 @@ class TestSuite extends FunSuite {
 
   def round(x: Double, d: Int = 2) = (scala.math.pow(10,d) * x).toInt / scala.math.pow(10,d)
 
-  test("Gibbs") { // .31s in julia; .66s in scala
+  test("Gibbs") { // julia is 2-3 times faster than scala
     import breeze.stats.distributions.{Gaussian,Gamma}
     import math.sqrt
 
