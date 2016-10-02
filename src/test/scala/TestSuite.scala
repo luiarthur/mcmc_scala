@@ -12,7 +12,7 @@ class TestSuite extends FunSuite {
 
     // Generate Data
     val (mu,sig2,n) = (5.0,2.0,1000)
-    val y = Gaussian(mu,sqrt(sig2)).sample(n).toVector
+    val y = Gaussian(mu,sqrt(sig2)).sample(n)
     val ybar = y.sum / n
 
     // Extend State class & define samplers for full conditionals
