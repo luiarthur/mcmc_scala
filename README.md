@@ -60,4 +60,5 @@ println("Truth : " + mu + "\t" + sig2)
 println(" Mean : " + postMean.map{round(_)}.mkString("\t"))
 println("   SD : " + postSD.map{round(_)}.mkString("\t"))
 println(Console.RESET)
+
 ```
