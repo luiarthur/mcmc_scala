@@ -32,6 +32,7 @@ class TestSuite extends FunSuite {
 
     // Time & Run Gibbs Sampler
     val out = timer {Gibbs.sample(init=State(mu=2.0,sig2=10.0),B=10000,burn=1000)}
+    out.take(3).foreach{println}
 
     // Post-processing
     def mean(x: List[Double]) = x.sum / x.size
