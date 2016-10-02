@@ -12,7 +12,6 @@ class TestSuite extends FunSuite {
     import MCMC.all._
     val (mu,sig2,n) = (5.0,2.0,1000)
     val y = Gaussian(mu,sqrt(sig2)).sample(n).toVector
-
     val ybar = y.sum / n
 
     case class State(mu: Double, sig2: Double) extends Gibbs.State {
