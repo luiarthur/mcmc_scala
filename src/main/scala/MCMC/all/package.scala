@@ -2,6 +2,15 @@ package MCMC
 
 package object all {
 
+  def timer[R](block: => R): R = {  
+    val t0 = System.nanoTime()
+    val result = block
+    val t1 = System.nanoTime()
+    println("Elapsed time: " + (t1 - t0) / 1E9 + "s")
+    result
+  }
+
+
   type Param = Vector[Double]
 
   implicit class SmartVector[T](vec: Vector[T]) {

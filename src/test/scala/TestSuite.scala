@@ -1,10 +1,10 @@
 import org.scalatest.FunSuite
 
 class TestSuite extends FunSuite {
-  import MCMC.all._
-  import breeze.stats.distributions.Gamma
+  import MCMC.all.timer
 
   test("Implicit") {
+    import MCMC.all._
     println(Vector(10.0,10.1,10.2).but(1))
   }
 
@@ -12,6 +12,8 @@ class TestSuite extends FunSuite {
 
 
   test("Gibbs") {
+    import MCMC.all._
+    import breeze.stats.distributions.Gamma
     def rnorm(mu: Double, sd: Double) = scala.util.Random.nextGaussian * sd + mu
     def rig(shp: Double, rate: Double) = 1 / Gamma(shp, 1/rate).sample
 
@@ -48,8 +50,8 @@ class TestSuite extends FunSuite {
             ))
     )
 
-    val gibbs = Gibbs(specs, 10000, 1000)
-    val samps = gibbs.sample
+    val gibbs = Gibbs(specs, 100000, 1000)
+    val samps = timer { gibbs.sample }
     val postMean = samps.meansDouble
     val postSD = samps.sdsDouble
 
@@ -63,6 +65,47 @@ class TestSuite extends FunSuite {
   }
 
   test("Spec2-XML") {
+    import MCMC.all._
     println(Spec2.specs)
+  }
+
+  test("Spec3") {
+    // 3 times faster than julia
+    import breeze.stats.distributions.{Gaussian,Gamma}
+    import math.sqrt
+    import MCMC.all.Spec3._
+
+    val mu = 5.0
+    val sig2 = 2.0
+    val n = 100
+    def rnorm(mu: Double, sd: Double) = scala.util.Random.nextGaussian * sd + mu
+    def rig(shp: Double, rate: Double) = 1 / Gamma(shp, 1/rate).sample
+
+    val y = Gaussian(mu,sqrt(sig2)).sample(n).toVector
+
+    val a = 2.0
+    val b = 1.0
+
+    val ybar = y.sum / n
+
+    case class State(mu: Double, sig2: Double) extends GibbsState {
+      def update = {
+        // update mu
+        val newMu = Gaussian(ybar,sqrt(sig2/n)).sample
+        // update sig2
+        val ss = y.map{ yi => (yi-newMu)*(yi-newMu) }.sum
+        val newSig2 = rig(a+n/2.0, b+ss/2.0)
+        State(newMu, newSig2)
+      }
+    }
+
+    val init = State(2.0,1.0)
+    val out = timer { gibbs(init,100000,1000) }
+    println(out.head)
+    println(out.map{_.mu}.sum / out.size)
+    println(out.map{_.sig2}.sum / out.size)
+
+
+    //println(out.head.mu)
   }
 }
