@@ -62,8 +62,7 @@ class TestSuite extends FunSuite {
     println(Console.RESET)
   }
 
-  //test("Strange") {
-  //  def f[T](t: Strange[T]) = t + 1
-  //  println(f(10))
-  //}
+  test("Spec2-XML") {
+    println(Spec2.specs)
+  }
 }
