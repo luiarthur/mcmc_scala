@@ -53,7 +53,6 @@ package object all {
     println("post mean sig2: " + mean(out.map{_.sig2}) )
     println("post sd mu: " + sd(out.map{_.mu}) )
     println("post sd sig2: " + sd(out.map{_.sig2}) )
-
     """
 
     println(fullExample)

@@ -2,9 +2,10 @@
 MCMC Implementation in Scala
 
 # To do:
-- better interface
-- make parameters `Either[Double,Vector[Double]]`
-- better design?
+- MH
+- simultaneous updates
+    - Gibbs
+    - MH
 
 # Usage Example:
 ```scala
