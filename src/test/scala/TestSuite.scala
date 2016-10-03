@@ -18,14 +18,14 @@ class TestSuite extends FunSuite {
     // Extend State class & define samplers for full conditionals
     case class State(mu: Double, sig2: Double) extends Gibbs.State {
       def rig(shp: Double, rate: Double) = 1 / Gamma(shp, 1/rate).sample
-      val (sig2a, sig2b) = (2,1)
+      val (sig2a, sig2b) = (2.0, 1.0)
       def update = {
         // update mu
         val newMu = Gaussian(ybar,sqrt(sig2/n)).sample
 
         // update sig2
         val ss = y.map{ yi => (yi-newMu)*(yi-newMu) }.sum
-        val newSig2 = rig(sig2b+n/2.0, sig2a+ss/2.0)
+        val newSig2 = rig(sig2b+n/2, sig2a+ss/2)
         State(newMu, newSig2)
       }
     }
