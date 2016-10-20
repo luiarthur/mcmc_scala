@@ -74,18 +74,18 @@ class TestSuite extends FunSuite {
     println(Console.GREEN+"weib: "+sd(weib.map(_.beta(1)))+Console.RESET)
     println(Console.GREEN+"weib DIC: "+wdic+Console.RESET)
 
-    //val (llog,lldic) = timer{aft.sample(B,burn,Distr.LogLogistic)}
-    //println(Console.GREEN+"llog: "+llog.map(_.sig).sum/B+Console.RESET)
-    //println(Console.GREEN+"llog: "+sd(llog.map(_.sig))+Console.RESET)
-    //println(Console.GREEN+"llog: "+llog.map(_.beta(0)).sum/B+Console.RESET)
-    //println(Console.GREEN+"llog: "+llog.map(_.beta(1)).sum/B+Console.RESET)
-    //println(Console.GREEN+"llog DIC: "+lldic+Console.RESET)
+    val (llog,lldic) = timer{aft.sample(B,burn,distr="LogLogistic")}
+    println(Console.GREEN+"llog: "+llog.map(_.sig).sum/B+Console.RESET)
+    println(Console.GREEN+"llog: "+sd(llog.map(_.sig))+Console.RESET)
+    println(Console.GREEN+"llog: "+llog.map(_.beta(0)).sum/B+Console.RESET)
+    println(Console.GREEN+"llog: "+llog.map(_.beta(1)).sum/B+Console.RESET)
+    println(Console.GREEN+"llog DIC: "+lldic+Console.RESET)
 
-    //val (lnorm,lndic) = timer{aft.sample(B,burn,Distr.LogNormal)}
-    //println(Console.GREEN+"lnorm: "+lnorm.map(_.sig).sum/B+Console.RESET)
-    //println(Console.GREEN+"lnorm: "+sd(lnorm.map(_.sig))+Console.RESET)
-    //println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(0)).sum/B+Console.RESET)
-    //println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(1)).sum/B+Console.RESET)
-    //println(Console.GREEN+"lnorm DIC: "+lndic+Console.RESET)
+    val (lnorm,lndic) = timer{aft.sample(B,burn,distr="LogNormal")}
+    println(Console.GREEN+"lnorm: "+lnorm.map(_.sig).sum/B+Console.RESET)
+    println(Console.GREEN+"lnorm: "+sd(lnorm.map(_.sig))+Console.RESET)
+    println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(0)).sum/B+Console.RESET)
+    println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(1)).sum/B+Console.RESET)
+    println(Console.GREEN+"lnorm DIC: "+lndic+Console.RESET)
   }
 }
