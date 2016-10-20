@@ -23,9 +23,17 @@ object AFT {
 
 
 class AFT(val t: List[Double], val X: List[List[Double]], val v: List[Int], 
-          val prior: AFT.Prior, var dist: Distr.TimeDistribution = Distr.Weibull) {
+          val prior: AFT.Prior) {
+
   import Distr._
   import AFT.{Prior,mean,variance}
+
+  private var distribution= "weibull"
+  private def dist = distribution.toLowerCase match {
+    case "lognormal" => LogNormal
+    case "loglogistic" => LogLogistic
+    case _ => Weibull
+  }
 
   val N = t.size 
   assert(X.size == N && v.size == N, "t,X,v not same size.")
@@ -66,8 +74,9 @@ class AFT(val t: List[Double], val X: List[List[Double]], val v: List[Int],
     }
   }
 
-  def sample(B: Int, burn: Int, printEvery: Int=10) = {
+  def sample(B: Int, burn: Int, printEvery: Int=10, distr: String="") = {
 
+    distribution = distr
     val P = prior.m.size
     val init = State(List.fill(P)(0.0), 1.0)
 
