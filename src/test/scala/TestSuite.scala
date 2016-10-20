@@ -84,7 +84,5 @@ class TestSuite extends FunSuite {
     println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(0)).sum/B+Console.RESET)
     println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(1)).sum/B+Console.RESET)
     println(Console.GREEN+"lnorm DIC: "+lndic+Console.RESET)
-
-    println( sd(List.fill(10000)(scala.util.Random.nextGaussian)) )
   }
 }
