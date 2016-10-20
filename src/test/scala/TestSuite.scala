@@ -15,22 +15,29 @@ class TestSuite extends FunSuite {
   }
 
 
-  test("Gibbs") { // julia is 2-3 times faster than scala
-    import breeze.stats.distributions.{Gaussian,Gamma}
+  test("Gibbs") { // - julia is 2-3 times faster than scala
+                  // - breeze is faster than apache commons math
+                  //   for sampling numbers. Not sure by how much.
+    //import breeze.stats.distributions.{Gaussian,Gamma}
+    import org.apache.commons.math3.distribution.{GammaDistribution=>Gamma}
+    def N01 = scala.util.Random.nextGaussian
     import MCMC.all._
 
     // Generate Data
     val (mu,sig2,n) = (5.0,2.0,1000)
-    val y = Gaussian(mu,sqrt(sig2)).sample(n)
+    //val y = Gaussian(mu,sqrt(sig2)).sample(n) // breeze
+    val y = List.fill(n)(N01 * mu + sig2)
     val ybar = y.sum / n
 
     // Extend State class & define samplers for full conditionals
     case class State(mu: Double, sig2: Double) extends Gibbs.State {
-      def rig(shp: Double, rate: Double) = 1 / Gamma(shp, 1/rate).sample
+      //def rig(shp: Double, rate: Double) = 1 / Gamma(shp, 1/rate).sample // breeze
+      def rig(shp: Double, rate: Double) = 1 / {new Gamma(shp,1/rate)}.sample
       val (sig2a, sig2b) = (2.0, 1.0)
       def update = {
         // update mu
-        val newMu = Gaussian(ybar,sqrt(sig2/n)).sample
+        //val newMu = Gaussian(ybar,sqrt(sig2/n)).sample //breeze
+        val newMu = N01 * sqrt(sig2/n) + ybar
 
         // update sig2
         val ss = y.map{ yi => (yi-newMu)*(yi-newMu) }.sum
