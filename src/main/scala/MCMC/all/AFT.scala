@@ -1,6 +1,8 @@
 package MCMC.all
 
 object AFT {
+  import Distr.{LogNormal,LogLogistic,Weibull}
+
   class Prior(
     // priors for beta ~ Normal(meanVector=m,covMatrix=s2I)
     val m: List[Double],
@@ -12,29 +14,60 @@ object AFT {
     val css: Double = 1 // candidate sigma for metropolis
   )
 
-  class Model[T <: Gibbs.State](t: List[Double], 
-    X: List[List[Double]], v: List[Int], init: T, 
-    prior: Prior, B: Int, burn: Int, printEvery: Int=10) {
+  def sample[T <: Gibbs.State](t: List[Double], 
+    X: List[List[Double]], v: List[Int], 
+    prior: Prior, B: Int, burn: Int, model: String="weibull",
+    printEvery: Int=10) = {
 
-      val N = t.size 
-      assert(X.size == N && v.size == N, "t,X,v not same size.")
+    val N = t.size 
+    assert(X.size == N && v.size == N, "t,X,v not same size.")
 
-      // log-priors:
-      def logPriorBeta(bj: Double, j: Int) = 
-        -(bj-prior.m(j)) * (bj-prior.m(j)) / (2*prior.s2(j))
+    // log-priors:
+    def logPriorBeta(bj: Double, j: Int) = 
+      -(bj-prior.m(j)) * (bj-prior.m(j)) / (2*prior.s2(j))
 
-      def logPriorSig(sig: Double) =
-        (-prior.a - 1) * math.log(sig) - prior.b/sig
+    def logPriorSig(sig: Double) =
+      (-prior.a - 1) * math.log(sig) - prior.b/sig
 
-      def loglike(sig: Double, beta: List[Double], 
-        model: String="weibull") = {
-          val xb = X.map(xi => 
-              xi.zip(beta).map(xb => xb._1*xb._2).sum)
-          model match {
-            case "weibull" => ???
-            case "lognormal" => ???
-            case "loglogistic" => ???
-          }
+    def loglike(sig: Double, beta: List[Double]) = { // weibull = log-extreme-value
+      val mu = X.map(xi => xi.zip(beta).map(xb => xb._1*xb._2).sum)
+      val (observed,censored) = {t.zip(mu)}.zip(v).toList.partition(_._2 == 1)
+      val o = observed.map(_._1)
+      val c = censored.map(_._1)
+      val dist = model match {
+        case "loglogistic" => LogLogistic
+        case "lognormal" => LogNormal
+        case _ => Weibull
       }
+      val ologlike = o.map{ tmu => dist.logpdf (tmu._1, tmu._2, sig) }.sum
+      val cloglike = c.map{ tmu => dist.logSurv(tmu._1, tmu._2, sig) }.sum
+      ologlike + cloglike
+    }
+
+    case class State(beta: List[Double], sig: Double, 
+                     betaAcc: List[Int], sigAcc: Int) extends Gibbs.State {
+      def update = {
+        // update sig
+        val (newSig,newSigAcc) = MH.metropolis(sig,
+                                    (s:Double)=>loglike(s,beta)+logPriorSig(s),
+                                    sigAcc,prior.css,inbounds=(x:Double)=>x>0)
+        // update beta
+        def updateBeta(b: List[Double], j: Int, acc: List[Int]): (List[Double],List[Int]) = {
+          if (j == b.size) (b,acc) else {
+            val (bj,accj) = MH.metropolis(b(j),
+              (b:Double)=>loglike(newSig,beta.updated(j,b))+logPriorBeta(b,j),
+              acc(j),prior.csb(j))
+            updateBeta(b.updated(j,bj),j+1,acc.updated(j,accj))
+          }
+        }
+        val (newBeta,newBetaAcc) = updateBeta(beta,0,betaAcc)
+        State(newBeta,newSig,newBetaAcc,newSigAcc)
+      }
+    }
+
+    val P = prior.m.size
+    val init = State(List.fill(P)(0.0), 1.0, List.fill(P)(0), 0)
+
+    Gibbs.sample(init=init,B,burn)
   }
 }

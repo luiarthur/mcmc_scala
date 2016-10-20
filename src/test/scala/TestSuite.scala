@@ -48,4 +48,31 @@ class TestSuite extends FunSuite {
     println("post sd mu: " + sd(out.map{_.mu}) )
     println("post sd sig2: " + sd(out.map{_.sig2}) )
   }
+
+  test("aft") {
+    val XTV = scala.io.Source.fromFile("src/test/resources/tongue.dat").getLines.map(x=>x.split(",").toList.map(_.toDouble)).toList
+    val X = XTV.map(xtv => List(1.0,xtv(0)))//XTV(0).map(List(1,_))
+    val t = XTV.map(xtv => xtv(1))
+    val v = XTV.map(xtv => xtv(2).toInt)
+
+    import MCMC.all.AFT
+    val prior = new AFT.Prior(m = List(0,0), s2 = List(1,1), csb = List(1,1),
+                              a = 2, b = 1, css = 1)
+
+    val weib = timer{AFT.sample(t, X, v, prior, 10000, 5000)}
+    weib.take(3).foreach{println}
+    println(Console.GREEN+"weib: "+weib.map(_.sig).sum / 10000.0+Console.RESET)
+
+    val llog = timer{AFT.sample(t, X, v, prior, 10000, 5000,model="loglogistic")}
+    llog.take(3).foreach{println}
+    println(Console.GREEN+"llog: "+llog.map(_.sig).sum / 10000.0+Console.RESET)
+    println(Console.GREEN+"llog: "+llog.map(_.beta(0)).sum / 10000.0+Console.RESET)
+    println(Console.GREEN+"llog: "+llog.map(_.beta(1)).sum / 10000.0+Console.RESET)
+
+    val lnorm = timer{AFT.sample(t, X, v, prior, 10000, 5000,model="lognormal")}
+    lnorm.take(3).foreach{println}
+    println(Console.GREEN+"lnorm: "+lnorm.map(_.sig).sum / 10000.0+Console.RESET)
+
+
+  }
 }
