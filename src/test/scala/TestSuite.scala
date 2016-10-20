@@ -2,12 +2,21 @@ import org.scalatest.FunSuite
 
 class TestSuite extends FunSuite {
   import MCMC.all.timer
+  import math.sqrt
 
   def round(x: Double, d: Int = 2) = (scala.math.pow(10,d) * x).toInt / scala.math.pow(10,d)
+  // Post-processing
+  def mean(x: List[Double]) = x.sum / x.size
+  def sd(x: List[Double]) = {
+    val xbar = mean(x)
+    val n = x.size
+    val sqDiff = x.map{xi => (xi-xbar)*(xi-xbar)}
+    sqrt( sqDiff.sum / (n-1) )
+  }
+
 
   test("Gibbs") { // julia is 2-3 times faster than scala
     import breeze.stats.distributions.{Gaussian,Gamma}
-    import math.sqrt
     import MCMC.all._
 
     // Generate Data
@@ -34,14 +43,6 @@ class TestSuite extends FunSuite {
     val out = timer {Gibbs.sample(init=State(mu=2.0,sig2=10.0),B=10000,burn=1000)}
     out.take(3).foreach{println}
 
-    // Post-processing
-    def mean(x: List[Double]) = x.sum / x.size
-    def sd(x: List[Double]) = {
-      val xbar = mean(x)
-      val n = x.size
-      val sqDiff = x.map{xi => (xi-xbar)*(xi-xbar)}
-      sqrt(mean(sqDiff)*n/(n-1))
-    }
 
     println("post mean mu: " + mean(out.map{_.mu}) )
     println("post mean sig2: " + mean(out.map{_.sig2}) )
@@ -51,28 +52,39 @@ class TestSuite extends FunSuite {
 
   test("aft") {
     val XTV = scala.io.Source.fromFile("src/test/resources/tongue.dat").getLines.map(x=>x.split(",").toList.map(_.toDouble)).toList
-    val X = XTV.map(xtv => List(1.0,xtv(0)))//XTV(0).map(List(1,_))
+    val X = XTV.map(xtv => List(1.0,xtv(0)))
     val t = XTV.map(xtv => xtv(1))
     val v = XTV.map(xtv => xtv(2).toInt)
 
     import MCMC.all.AFT
-    val prior = new AFT.Prior(m = List(0,0), s2 = List(1,1), csb = List(1,1),
-                              a = 2, b = 1, css = 1)
+    val B = 10000
+    val burn = 5000
+    val prior = new AFT.Prior(m = List(0,0), s2 = List(10,10), csb = List(1,1),
+                              a = 2.0, b = 1.0, css = 1)
 
-    val weib = timer{AFT.sample(t, X, v, prior, 10000, 5000)}
-    weib.take(3).foreach{println}
-    println(Console.GREEN+"weib: "+weib.map(_.sig).sum / 10000.0+Console.RESET)
+    val (weib,wdic) = timer{AFT.sample(t, X, v, prior, B, burn)}
+    println(Console.GREEN+"weib: "+weib.map(_.sig).sum/B+Console.RESET)
+    println(Console.GREEN+"weib: "+sd(weib.map(_.sig))+Console.RESET)
+    println(Console.GREEN+"weib: "+weib.map(_.beta(0)).sum/B+Console.RESET)
+    println(Console.GREEN+"weib: "+weib.map(_.beta(1)).sum/B+Console.RESET)
+    println(Console.GREEN+"weib: "+sd(weib.map(_.beta(0)))+Console.RESET)
+    println(Console.GREEN+"weib: "+sd(weib.map(_.beta(1)))+Console.RESET)
+    println(Console.GREEN+"weib DIC: "+wdic+Console.RESET)
 
-    val llog = timer{AFT.sample(t, X, v, prior, 10000, 5000,model="loglogistic")}
-    llog.take(3).foreach{println}
-    println(Console.GREEN+"llog: "+llog.map(_.sig).sum / 10000.0+Console.RESET)
-    println(Console.GREEN+"llog: "+llog.map(_.beta(0)).sum / 10000.0+Console.RESET)
-    println(Console.GREEN+"llog: "+llog.map(_.beta(1)).sum / 10000.0+Console.RESET)
+    val (llog,lldic) = timer{AFT.sample(t,X,v,prior,B,burn,model="loglogistic")}
+    println(Console.GREEN+"llog: "+llog.map(_.sig).sum/B+Console.RESET)
+    println(Console.GREEN+"llog: "+sd(llog.map(_.sig))+Console.RESET)
+    println(Console.GREEN+"llog: "+llog.map(_.beta(0)).sum/B+Console.RESET)
+    println(Console.GREEN+"llog: "+llog.map(_.beta(1)).sum/B+Console.RESET)
+    println(Console.GREEN+"llog DIC: "+lldic+Console.RESET)
 
-    val lnorm = timer{AFT.sample(t, X, v, prior, 10000, 5000,model="lognormal")}
-    lnorm.take(3).foreach{println}
-    println(Console.GREEN+"lnorm: "+lnorm.map(_.sig).sum / 10000.0+Console.RESET)
+    val (lnorm,lndic) = timer{AFT.sample(t,X,v,prior,B,burn,model="lognormal")}
+    println(Console.GREEN+"lnorm: "+lnorm.map(_.sig).sum/B+Console.RESET)
+    println(Console.GREEN+"lnorm: "+sd(lnorm.map(_.sig))+Console.RESET)
+    println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(0)).sum/B+Console.RESET)
+    println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(1)).sum/B+Console.RESET)
+    println(Console.GREEN+"lnorm DIC: "+lndic+Console.RESET)
 
-
+    println( sd(List.fill(10000)(scala.util.Random.nextGaussian)) )
   }
 }

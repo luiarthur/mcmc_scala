@@ -7,23 +7,27 @@ object Distr {
   private val N01 = new NormalDistribution(0,1)
 
   trait ErrorDistribution {
-    def logpdf(x: Double): Double
-    def cdf(x: Double): Double
+    def logpdf(z: Double): Double
+    def cdf(z: Double): Double
   }
 
   object Normal extends ErrorDistribution {
-    def logpdf(x: Double) = -(log(2.0*Pi) - x*x)/2.0
-    def cdf(x: Double) = N01.cumulativeProbability(x)
+    def logpdf(z: Double) = -(log(2.0*Pi) + z*z)/2.0
+    def cdf(z: Double) = N01.cumulativeProbability(z)
   }
 
   object Logistic extends ErrorDistribution {
-    def logpdf(x: Double) = -x -2.0*log(1.0+exp(-x))
-    def cdf(x: Double) = 1/(exp(-x) + 1)
+    def logpdf(z: Double) = -z -2.0*log(1.0+exp(-z))
+    def cdf(z: Double) = 1/(exp(-z) + 1)
   }
 
   object ExtremeValue extends ErrorDistribution {
-    def logpdf(x: Double) = -x -exp(-x)
-    def cdf(x: Double) = exp(-exp(-x))
+    // Wikipedia
+    //def logpdf(z: Double) = -z-exp(-z)
+    //def cdf(z: Double) = exp(-exp(-z))
+    // R and Stats community
+    def logpdf(z: Double) = z - exp(z)
+    def cdf(z: Double) = 1-exp(-exp(z))
   }
 
   trait TimeDistribution {
