@@ -21,7 +21,7 @@ object AFT {
     val css: Double = 1 // candidate sigma for metropolis
   )
 
-  def sample[T <: Gibbs.State](t: List[Double], 
+  def sample(t: List[Double], 
     X: List[List[Double]], v: List[Int], 
     prior: Prior, B: Int, burn: Int, model: String="weibull",
     printEvery: Int=10) = {

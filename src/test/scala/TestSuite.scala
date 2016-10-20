@@ -50,39 +50,39 @@ class TestSuite extends FunSuite {
     println("post sd sig2: " + sd(out.map{_.sig2}) )
   }
 
-  test("aft") {
-    val XTV = scala.io.Source.fromFile("src/test/resources/tongue.dat").getLines.map(x=>x.split(",").toList.map(_.toDouble)).toList
-    val X = XTV.map(xtv => List(1.0,xtv(0)))
-    val t = XTV.map(xtv => xtv(1))
-    val v = XTV.map(xtv => xtv(2).toInt)
+  //test("aft") {
+  //  val XTV = scala.io.Source.fromFile("src/test/resources/tongue.dat").getLines.map(x=>x.split(",").toList.map(_.toDouble)).toList
+  //  val X = XTV.map(xtv => List(1.0,xtv(0)))
+  //  val t = XTV.map(xtv => xtv(1))
+  //  val v = XTV.map(xtv => xtv(2).toInt)
 
-    import MCMC.all.AFT
-    val B = 10000
-    val burn = 5000
-    val prior = new AFT.Prior(m = List(0,0), s2 = List(10,10), csb = List(1,1),
-                              a = 2.0, b = 1.0, css = 1)
+  //  import MCMC.all.AFT
+  //  val B = 10000
+  //  val burn = 5000
+  //  val prior = new AFT.Prior(m = List(0,0), s2 = List(10,10), csb = List(1,1),
+  //                            a = 2.0, b = 1.0, css = 1)
 
-    val (weib,wdic) = timer{AFT.sample(t, X, v, prior, B, burn)}
-    println(Console.GREEN+"weib: "+weib.map(_.sig).sum/B+Console.RESET)
-    println(Console.GREEN+"weib: "+sd(weib.map(_.sig))+Console.RESET)
-    println(Console.GREEN+"weib: "+weib.map(_.beta(0)).sum/B+Console.RESET)
-    println(Console.GREEN+"weib: "+weib.map(_.beta(1)).sum/B+Console.RESET)
-    println(Console.GREEN+"weib: "+sd(weib.map(_.beta(0)))+Console.RESET)
-    println(Console.GREEN+"weib: "+sd(weib.map(_.beta(1)))+Console.RESET)
-    println(Console.GREEN+"weib DIC: "+wdic+Console.RESET)
+  //  val (weib,wdic) = timer{AFT.sample(t, X, v, prior, B, burn)}
+  //  println(Console.GREEN+"weib: "+weib.map(_.sig).sum/B+Console.RESET)
+  //  println(Console.GREEN+"weib: "+sd(weib.map(_.sig))+Console.RESET)
+  //  println(Console.GREEN+"weib: "+weib.map(_.beta(0)).sum/B+Console.RESET)
+  //  println(Console.GREEN+"weib: "+weib.map(_.beta(1)).sum/B+Console.RESET)
+  //  println(Console.GREEN+"weib: "+sd(weib.map(_.beta(0)))+Console.RESET)
+  //  println(Console.GREEN+"weib: "+sd(weib.map(_.beta(1)))+Console.RESET)
+  //  println(Console.GREEN+"weib DIC: "+wdic+Console.RESET)
 
-    val (llog,lldic) = timer{AFT.sample(t,X,v,prior,B,burn,model="loglogistic")}
-    println(Console.GREEN+"llog: "+llog.map(_.sig).sum/B+Console.RESET)
-    println(Console.GREEN+"llog: "+sd(llog.map(_.sig))+Console.RESET)
-    println(Console.GREEN+"llog: "+llog.map(_.beta(0)).sum/B+Console.RESET)
-    println(Console.GREEN+"llog: "+llog.map(_.beta(1)).sum/B+Console.RESET)
-    println(Console.GREEN+"llog DIC: "+lldic+Console.RESET)
+  //  val (llog,lldic) = timer{AFT.sample(t,X,v,prior,B,burn,model="loglogistic")}
+  //  println(Console.GREEN+"llog: "+llog.map(_.sig).sum/B+Console.RESET)
+  //  println(Console.GREEN+"llog: "+sd(llog.map(_.sig))+Console.RESET)
+  //  println(Console.GREEN+"llog: "+llog.map(_.beta(0)).sum/B+Console.RESET)
+  //  println(Console.GREEN+"llog: "+llog.map(_.beta(1)).sum/B+Console.RESET)
+  //  println(Console.GREEN+"llog DIC: "+lldic+Console.RESET)
 
-    val (lnorm,lndic) = timer{AFT.sample(t,X,v,prior,B,burn,model="lognormal")}
-    println(Console.GREEN+"lnorm: "+lnorm.map(_.sig).sum/B+Console.RESET)
-    println(Console.GREEN+"lnorm: "+sd(lnorm.map(_.sig))+Console.RESET)
-    println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(0)).sum/B+Console.RESET)
-    println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(1)).sum/B+Console.RESET)
-    println(Console.GREEN+"lnorm DIC: "+lndic+Console.RESET)
-  }
+  //  val (lnorm,lndic) = timer{AFT.sample(t,X,v,prior,B,burn,model="lognormal")}
+  //  println(Console.GREEN+"lnorm: "+lnorm.map(_.sig).sum/B+Console.RESET)
+  //  println(Console.GREEN+"lnorm: "+sd(lnorm.map(_.sig))+Console.RESET)
+  //  println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(0)).sum/B+Console.RESET)
+  //  println(Console.GREEN+"lnorm: "+lnorm.map(_.beta(1)).sum/B+Console.RESET)
+  //  println(Console.GREEN+"lnorm DIC: "+lndic+Console.RESET)
+  //}
 }
