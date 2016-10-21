@@ -2,6 +2,8 @@ package MCMC
 
 package object all {
 
+  val Rand = new org.apache.commons.math3.random.RandomDataImpl()
+
   def timer[R](block: => R): R = {  
     val t0 = System.nanoTime()
     val result = block
