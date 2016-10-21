@@ -2,9 +2,9 @@ package MCMC
 
 package object all {
 
-  val Rand = new org.apache.commons.math3.random.RandomDataImpl()
+  val Rand = new org.apache.commons.math3.random.RandomDataGenerator()
 
-  def timer[R](block: => R): R = {  
+  def timer[R](block: => R) = {
     val t0 = System.nanoTime()
     val result = block
     val t1 = System.nanoTime()
@@ -55,7 +55,7 @@ package object all {
     println("post mean sig2: " + mean(out.map{_.sig2}) )
     println("post sd mu: " + sd(out.map{_.mu}) )
     println("post sd sig2: " + sd(out.map{_.sig2}) )
-    """
+    """.replace("\r", "").stripMargin
 
     println(fullExample)
   }
