@@ -11,15 +11,15 @@ object MH {
     } else curr
   }
 
-  // Check this: FIXME
+  // metropolis step with normal random walk
   def met(curr:Double, ll_plus_lp:Double=>Double, candSig:Double) = {
     val cand = Rand.nextGaussian(curr,candSig)
     val u = math.log(Rand.nextUniform(0,1))
-    val p = loglike_plus_prior(cand) - loglike_plus_prior(curr)
+    val p = ll_plus_lp(cand) - ll_plus_lp(curr)
     if (p > u) cand else curr
   }
 
-  // Check this: FIXME
+  // metropolis step on logit-transformed var with normal random walk
   def metLogit(curr:Double,ll:Double=>Double,lp:Double=>Double,candSig:Double) = {
     // curr should be between 0 and 1
     
