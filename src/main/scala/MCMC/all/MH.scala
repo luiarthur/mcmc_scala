@@ -31,7 +31,7 @@ object MH {
       val logJ = -logitP + 2*math.log(p)
       val logPriorLogitP = lp(p) + logJ 
 
-      ll(curr) + logPriorLogitP
+      ll(p) + logPriorLogitP
     }
 
     invLogit(met(logit(curr), logLikePlusLogPrior, candSig))
